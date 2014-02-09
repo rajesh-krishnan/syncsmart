@@ -48,23 +48,23 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 public class UDPTest {
     /**
-     * The main method tests the smartsync protocol.  Instantiates Store, SyncProtocol, MoverProtocol and
-     * associates them. Populates the Store with random initial data. Creates a UDPTest protocol using the
-     * SyncProtocol and MoverProtocol. The addresses and ports for (binding) self and the other peer(s) 
-     * are accepted as arguments.  Currently only tested with unicast on same address and different ports. 
-     * @param args myIP myPort otherIP otherPort
-     * @throws Exception whenever any of the components throw an Exception
+     * The main method tests the smartsync protocol. Instantiates Store, SyncProtocol, MoverProtocol and
+     * associates them. Populates the Store with random initial data. Creates a DatagramTransport protocol 
+     * and associates with the SyncProtocol and MoverProtocol instances. IP addresses and ports for self 
+     * and peer(s) are accepted as arguments.
+     * @param args myIP myPort toIP toPort
+     * @throws Exception whenever any component throws an Exception
      */
     public static void main(String[] args) throws Exception {
-        InetAddress addrSelf = null;
-        InetAddress addrOther = null;
-        int portSelf = 0;
-        int portOther = 0;
+        InetAddress aslf = null;
+        InetAddress aoth = null;
+        int pslf = 0;
+        int poth = 0;
         try {
-            addrSelf = InetAddress.getByName(args[0]);
-            portSelf = Integer.parseInt(args[1]);
-            addrOther = InetAddress.getByName(args[2]);
-            portOther = Integer.parseInt(args[3]);
+            aslf = InetAddress.getByName(args[0]);
+            pslf = Integer.parseInt(args[1]);
+            aoth = InetAddress.getByName(args[2]);
+            poth = Integer.parseInt(args[3]);
         } catch (Exception e) { System.out.println("Usage: UDPTest myIP myPort toIP toPort"); System.exit(0);}
 
         String s = "METADATA";
@@ -77,10 +77,10 @@ public class UDPTest {
         }
         MoverInterface<String> mvif = new MoverProtocol<String>(stif);
 
-        SyncPeer self  = new SyncPeer(addrSelf, portSelf); 
-        SyncPeer other = new SyncPeer(addrOther, portOther);
-        SyncInterface<String> spif = new SyncProtocol<String>(self, other, stif, mvif);
-        DatagramTransport<String> ut = new DatagramTransport<String>(self, spif, mvif);
+        SyncPeer slf = new SyncPeer(aslf, pslf); 
+        SyncPeer oth = new SyncPeer(aoth, poth);
+        SyncInterface<String> spif = new SyncProtocol<String>(slf, oth, stif, mvif);
+        DatagramTransport<String> ut = new DatagramTransport<String>(slf, spif, mvif);
         System.out.println("started UDPTest");
         
         try {Thread.sleep(600000);} catch (InterruptedException e) {}
