@@ -1,0 +1,58 @@
+===========================================================================================================
+TODO 
+
+* test with broadcast and multiple nodes
+* logging that works on Java and Android
+* method to initiate a sync peer-to-peer vs. group
+* determine sync is achieved
+* terminate a sync in progress
+* handle hash collisions
+* suppress redundant CPI syncs and item sends
+* deletions 
+  - use a separate reconciler for purge set for given set, and check it before adding
+  - upon reconcilling deltas, delete item instead of adding
+* persistence of store 
+* support priority
+* aggregate multiple data items in a message
+* handle data items larger than a datagram
+
+===========================================================================================================
+Protocol Sketch
+
+Init: Set timer
+
+Timeout:
+    Queue to send CPI vector computed on its set for complete range  
+    // UNIMPL Optionally remove older CPI vector for same range or ancestor
+    // UNIMPL Optionally suppress if a CPI vector for a descendant partition is in queue
+    Set timer
+
+Receive Item:
+    Add to local set if new
+    // UNIMPL Delete from queue if applicable
+
+Receive Request for Item:
+    Queue to send items corresponding to the request 
+    // UNIMPL Optionally check if not already in queue
+    
+Receive Request for All Items in Partition:
+    Queue to send items corresponding to the request if not already in queue
+    // UNIMPL Optionally check if not already in queue
+
+Receive CPI vector:  
+    Cancel timer
+    Attempt to compute push and pull deltas from CPI vector
+    Upon reconciliation failure 
+        if partition smaller than bulkThreshold, pushAll and requestAll for this partition
+        ELSE
+           Queue to send new CPI vector for next partition (left child) of the vector received
+           // UNIMPL Optionally remove older CPI vector for same range or ancestor
+           // UNIMPL Optionally suppress this if CPI vector for a descendant partition is already in queue         
+    Upon reconciliation success
+        Queue to send items corresponding to the push deltas if not already in queue
+        Queue to send request for items corresponding to the pull deltas
+        Queue to send CPI vector for next partition (right sibling or backtrack) of the vector received
+        // UNIMPL Optionally remove older CPI vector for same range or ancestor
+        // UNIMPL Optionally suppress this if CPI vector for a descendant partition is already in queue
+    Set timer
+===========================================================================================================
